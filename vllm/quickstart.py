@@ -17,8 +17,10 @@ sampling_params = SamplingParams(temperature=0.8, top_p=0.95)
 def main():
     # Create an LLM.
     llm = LLM(
-        model="facebook/opt-125m",
-        gpu_memory_utilization=0.9
+        model="meta-llama/Llama-2-7b-hf",
+        gpu_memory_utilization=0.9,
+        enforce_eager=True,
+        max_model_len=512
         )
     # Generate texts from the prompts.
     # The output is a list of RequestOutput objects
