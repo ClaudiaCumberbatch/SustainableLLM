@@ -1,0 +1,2 @@
+id,config_hash,power_cap,gpu_memory_utilization,max_num_seqs,enable_prefix_caching,enable_chunked_prefill,swap_space,max_num_batched_tokens,mps_percentage,num_requests,avg_ttft,avg_tbt,avg_throughput,avg_energy_kwh,timestamp
+1,1999023631475563876,200,0.9,128,1,0,4,4096,100,10,0.06367485523223877,0.019814942846394547,48.690331757599,9.070390200424526e-05,2025-09-02T11:09:28.323814

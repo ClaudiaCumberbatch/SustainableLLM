@@ -1,0 +1,84 @@
+======================================================================
+VLLM PROFILING ANALYSIS REPORT
+Generated at: 2025-09-02T11:09:32.671565
+======================================================================
+
+OVERALL STATISTICS:
+  Total experiments: 10
+  Total configurations tested: 1
+  Average TTFT: 0.0637 seconds
+  Average TBT: 0.0198 seconds
+  Average throughput: 48.69 tokens/second
+  Average energy: 0.000091 kWh
+
+======================================================================
+BEST CONFIGURATIONS BY METRIC:
+======================================================================
+
+Best for TTFT (lowest):
+  Average TTFT: 0.0637 seconds
+  Configuration:
+    Power cap: 200W
+    GPU memory: 0.9
+    Max sequences: 128
+    MPS percentage: 100%
+
+Best for Throughput (highest):
+  Average throughput: 48.69 tokens/s
+  Configuration:
+    Power cap: 200W
+    GPU memory: 0.9
+    Max sequences: 128
+    MPS percentage: 100%
+
+Best for Energy Efficiency (throughput/energy):
+  Efficiency: 536.81 tokens/Wh
+  Configuration:
+    Power cap: 200W
+    GPU memory: 0.9
+    Max sequences: 128
+    MPS percentage: 100%
+
+======================================================================
+PARAMETER IMPACT ANALYSIS:
+======================================================================
+
+Impact of power_cap:
+  power_cap=200:
+    Avg TTFT: 0.0637s
+    Avg Throughput: 48.69 tokens/s
+    Avg Energy: 0.000100 kWh
+
+Impact of gpu_memory_utilization:
+  gpu_memory_utilization=0.9:
+    Avg TTFT: 0.0637s
+    Avg Throughput: 48.69 tokens/s
+    Avg Energy: 0.000100 kWh
+
+Impact of max_num_seqs:
+  max_num_seqs=128:
+    Avg TTFT: 0.0637s
+    Avg Throughput: 48.69 tokens/s
+    Avg Energy: 0.000100 kWh
+
+Impact of mps_percentage:
+  mps_percentage=100:
+    Avg TTFT: 0.0637s
+    Avg Throughput: 48.69 tokens/s
+    Avg Energy: 0.000100 kWh
+
+Impact of enable_prefix_caching:
+  enable_prefix_caching=1:
+    Avg TTFT: 0.0637s
+    Avg Throughput: 48.69 tokens/s
+    Avg Energy: 0.000100 kWh
+
+======================================================================
+TOP 5 MOST EFFICIENT CONFIGURATIONS:
+======================================================================
+
+1. Efficiency: 536.81 tokens/Wh
+   Throughput: 48.69 tokens/s
+   Energy: 0.000091 kWh
+   TTFT: 0.0637s
+   Config: power=200W, gpu_mem=0.9, max_seqs=128, mps=100%

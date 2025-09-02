@@ -1,0 +1,38 @@
+{
+  "model_name": "meta-llama/Llama-2-7b-hf",
+  "port": 8000,
+  "trace_file": "../dataset/alibaba_2025/filtered_data.csv",
+  "prompt_file": "../dataset/grad_school_math/train.jsonl",
+  "param_ranges": {
+    "power_cap": [
+      100,
+      150,
+      200
+    ],
+    "gpu_memory_utilization": [
+      0.9
+    ],
+    "max_num_seqs": [
+      64,
+      128
+    ],
+    "enable_prefix_caching": [
+      true
+    ],
+    "enable_chunked_prefill": [
+      false
+    ],
+    "swap_space": [
+      4
+    ],
+    "max_num_batched_tokens": [
+      2048,
+      4096
+    ],
+    "mps_percentage": [
+      75,
+      100
+    ]
+  },
+  "timestamp": "2025-09-02T11:04:31.053309"
+}

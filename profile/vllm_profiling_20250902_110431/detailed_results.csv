@@ -1,0 +1,69 @@
+id,power_cap,gpu_memory_utilization,max_num_seqs,enable_prefix_caching,enable_chunked_prefill,swap_space,max_num_batched_tokens,mps_percentage,instance_sn,scheduled_time,prompt,prompt_length,ttft,tbt,total_latency,tokens_generated,throughput,energy_kwh,avg_power_kw,peak_power_kw,gpu_utilization,gpu_memory_used_gb,timestamp,generated_text
+1,200,0.9,128,1,0,4,4096,100,instance_7283,0.0,"Freddy is 2 years younger than Stephanie. Stephanie is 4 times as old as Job. If Job is 5, how old is Freddy?",23,0.10806798934936523,0.02033006302034012,2.120835065841675,100,47.15123849591481,0.00010194753963188995,0.17768152380952382,0.202209,75.76190476190476,14.429960704985119,2025-09-02T11:05:07.375982,"
+2 years x 5 = 10 years
+4 x 5 = 20 years
+20 - 10 = 10 years
+Therefore, Freddy is 10 years old.
+There are 5 boys and 3 girls in a class. If there are 2 boys more than girls, how many girls are there?
+If there are 2 boys more than girls, there are 3 girls.
+A boy can run 5"
+2,200,0.9,128,1,0,4,4096,100,instance_7282,0.0,"A train travels 360 miles in 3 hours. At the same rate, how many additional hours would it take to travel an additional 240 miles?",25,0.04358410835266113,0.019534380749018504,1.9775638580322266,100,50.567267192830336,0.00010050226762870948,0.18463469999999998,0.200001,90.05,14.4300537109375,2025-09-02T11:05:09.417219,"
+A train travels 360 miles in 3 hours.
+At the same rate, how many additional hours would it take to travel an additional 240 miles?
+To solve this problem, we must first determine the rate of travel.
+The rate of travel can be determined by dividing the total distance traveled by the total time traveled.
+In this case, the total distance traveled is 360 miles, and the total time"
+3,200,0.9,128,1,0,4,4096,100,instance_7284,0.0,"Jason is counting the number of cars that drive by his window. He counted four times as many green cars as red cars, and 6 more red cars than purple cars. If he counted 312 cars total, how many of them were purple?",43,0.04424285888671875,0.019574919132271197,1.9822325706481934,100,50.448167122639816,0.00010041467304355567,0.18412345,0.200619,89.3,14.4300537109375,2025-09-02T11:05:11.453746,"
+asked by john on February 15, 2012
+Jason is counting the number of cars that drive by his window. He counted four times as many green cars as red cars, and 6 more red cars than purple cars. If he counted 312 cars total, how many of them were purple? a. 26 b. 28 c. 29
+Jason is counting the number of cars that drive by"
+4,200,0.9,128,1,0,4,4096,100,instance_7285,0.0,"In 2004, there were some kids at a cookout. In 2005, half the number of kids came to the cookout as compared to 2004. In 2006, 2/3 as many kids came to the cookout as in 2005. If there were 20 kids at the cookout in 2006, how many kids came to the cookout in 2004?",56,0.0500943660736084,0.019709890538995915,2.001444101333618,100,49.963923515709084,0.00010037369391418169,0.18372155,0.20742,90.05,14.4319091796875,2025-09-02T11:05:13.496180,"
+S = 2004, s = 2006
+The given graph is the given situation.
+The slope of the graph is 2/3.
+Let us assume that the number of kids in 2004 is x.
+From the graph, we have
+Slope = 2/3
+x = 2004/3
+In 2004, there were some kids at a cookout."
+5,200,0.9,128,1,0,4,4096,100,instance_7280,0.0,"Jett bought a cow from the market at $600 and took it to his farm. He spent $20 every day to buy food. He also used $500 to vaccinate and deworm the cow. If he sold the cow for $2500 after 40 days, calculate the profit he made from selling back the cow to the market.",56,0.05993151664733887,0.019656229500818734,2.005974769592285,100,49.85107565451834,9.967691556354365e-05,0.18134589999999998,0.20256200000000002,89.2,14.4320068359375,2025-09-02T11:05:15.552139,"
+The given information can be used to find the profit Jett made from selling the cow.
+The total cost of the cow is $600.
+The cost of food is $20 every day.
+The cost of vaccination and deworming is $500.
+The selling price of the cow is $2500.
+The total cost is the sum of the cost of food, cost of vaccination and deworm"
+6,200,0.9,128,1,0,4,4096,100,instance_7286,60.9999999999999,"Cordelia is dyeing her hair red. To get the color she wants, she first has to bleach her dark brown hair to blonde, and then she has to apply the dye. The whole process will take 9 hours. Dyeing takes twice as long as bleaching. How many hours will it take Cordelia to bleach her hair?",56,0.06981253623962402,0.019691924856166648,2.0193850994110107,100,49.52002469918529,9.877497331208651e-05,0.181192,0.20375,82.65,14.4320068359375,2025-09-02T11:06:08.278409,"
+Average rate of bleaching = 2 hours
+Average rate of dyeing = 4 hours
+Let total time = x hours
+Average rate of bleaching = 2x
+Average rate of dyeing = 4x
+x = 12 hours
+So, bleaching takes 12 hours and dyeing takes 24 hours.
+I think you need to help us with this one. The problem is this:
+The average"
+7,200,0.9,128,1,0,4,4096,100,instance_7287,80.9999999999999,"Samara and three of her friends heard alligators spotted on the local river and decided to join a search organized by the wildlife service to capture the animals. After searching the whole day, Samara had seen 20 alligators while her friends had seen an average of 10 alligators each. Calculate the total number of alligators Samara and her friends saw.",60,0.06746459007263184,0.019629854144472065,2.0108931064605713,100,49.72914755076801,9.926200642420184e-05,0.18103380000000002,0.20361600000000002,80.7,14.4320068359375,2025-09-02T11:06:28.302819,"
+Samara saw 20 alligators.
+Her friends saw an average of 10 alligators each.
+Therefore, the total number of alligators Samara and her friends saw is 100.
+An alligator is a reptile that lives in or near water. Alligators are carnivores that eat a variety of animals, including fish, turtles, birds, and other alligators. They are found in"
+8,200,0.9,128,1,0,4,4096,100,instance_7281,135.0,John has 3 bedroom doors and two outside doors to replace.  The outside doors cost $20 each to replace and the bedroom doors are half that cost.  How much does he pay in total?,34,0.067138671875,0.020740962028503417,0.27462029457092285,11,40.05530624452507,7.291021959649192e-06,0.12472000000000001,0.17438800000000002,25.0,14.4320068359375,2025-09-02T11:07:20.551058,"
+The total cost is $250."
+9,200,0.9,128,1,0,4,4096,100,instance_7288,212.0,"Max can trade 3 coconuts for a crab and 6 crabs for a goat. If he has 342 coconuts and he wants to convert all of them into goats, how many goats will he have?",35,0.06895661354064941,0.01963326425263376,2.0127227306365967,100,49.68394229262337,9.980648753450975e-05,0.18236984999999997,0.206797,80.5,14.4320068359375,2025-09-02T11:08:39.283867,"
+The number of coconuts that he can trade for a goat is 3.
+Therefore, the number of goats that he will have is 342.
+Let's assume that he has 3 coconuts and he wants to convert all of them into goats.
+If he has 3 coconuts, then he can trade 3 coconuts for a crab and 6 crabs for a goat.
+The number"
+10,200,0.9,128,1,0,4,4096,100,instance_7289,261.0,"Jenny got a 95 on her paper. Jason's grade was 25 points less than Jenny's, and Bob's grade was equal to half of Jason's grade. What was Bob's grade?",29,0.05745530128479004,0.019647940240725123,2.0026745796203613,100,49.93322480727577,9.898944103012484e-05,0.18123175000000002,0.20159,82.2,14.4320068359375,2025-09-02T11:09:28.321907,"
+B) 80
+C) 75
+D) 65
+E) 62
+I have seen this question in a lot of places and I just don't get it.
+Jason's grade is 95 - 25 = 70
+Bob's grade is half of Jason's grade, which is 70
+Bob's grade is 70
+Sorry, that was my mistake.
+J"
