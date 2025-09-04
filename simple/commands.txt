@@ -1,0 +1,10 @@
+# Run with mock mode enabled (default)
+python simplified_profiler.py --mock --prompt-limit 5
+
+
+# When have GPU resources
+# Change MOCK_MODE = False in the script, then run:
+python simplified_profiler.py --prompt-file train.jsonl --prompt-limit 100
+
+# For full dataset:
+python simplified_profiler.py --prompt-file train.jsonl
