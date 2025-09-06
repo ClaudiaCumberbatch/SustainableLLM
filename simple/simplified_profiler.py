@@ -25,7 +25,7 @@ import random
 from typing import Dict, List, Any, Optional
 
 # Flag for mock mode (no GPU required)
-MOCK_MODE = True  # Set to False when running with actual GPU
+MOCK_MODE = False  # Set to False when running with actual GPU
 
 # Mock pynvml for testing without GPU
 if MOCK_MODE:
@@ -325,15 +325,27 @@ class VLLMProfiler:
         print(f"Database created at: {db_path}")
         
         # Define parameter ranges for experimentation
+        # Test
+        # self.param_ranges = {
+        #     'power_cap': [150, 200],
+        #     'gpu_memory_utilization': [0.9],
+        #     'max_num_seqs': [64, 128],
+        #     'enable_prefix_caching': [True],
+        #     'enable_chunked_prefill': [False],
+        #     'swap_space': [4],
+        #     'max_num_batched_tokens': [2048],
+        #     'mps_percentage': [100]
+        # }
+        # V100S, 4*4*2*2*2*3 = 384 configs
         self.param_ranges = {
-            'power_cap': [150, 200],
-            'gpu_memory_utilization': [0.9],
-            'max_num_seqs': [64, 128],
+            'power_cap': [150, 200, 250],  # limit 250
+            'gpu_memory_utilization': [0.90, 0.95],  # 32GB 
+            'max_num_seqs': [64, 128], # batch size
             'enable_prefix_caching': [True],
-            'enable_chunked_prefill': [False],
-            'swap_space': [4],
-            'max_num_batched_tokens': [2048],
-            'mps_percentage': [100]
+            'enable_chunked_prefill': [False],  
+            'swap_space': [4, 8],
+            'max_num_batched_tokens': [2048, 4096], # 批处理的最大token数
+            'mps_percentage': [50, 75, 100]
         }
         
         # Save configuration
@@ -365,6 +377,32 @@ class VLLMProfiler:
         os.environ['CUDA_MPS_ACTIVE_THREAD_PERCENTAGE'] = str(percentage)
         print(f"MPS active thread percentage set to {percentage}%")
     
+    def check_server_health(self, max_retries: int = 60, retry_delay: int = 2):
+        """Check if vLLM server is ready"""
+        url = f"http://localhost:{self.port}/health"
+        
+        for i in range(max_retries):
+            try:
+                response = requests.get(url, timeout=5)
+                if response.status_code == 200:
+                    print(f"Server is ready! (took {i * retry_delay} seconds)")
+                    return True
+            except requests.exceptions.RequestException:
+                pass
+            
+            if self.server_process and self.server_process.poll() is not None:
+                stdout, stderr = self.server_process.communicate()
+                print(f"Server failed to start. Check logs for details.")
+                return False
+            
+            if i % 10 == 0 and i > 0:
+                print(f"Still waiting for server... ({i * retry_delay} seconds elapsed)")
+            
+            time.sleep(retry_delay)
+        
+        print(f"Server failed to start after {max_retries * retry_delay} seconds")
+        return False
+    
     def start_vllm_server(self, config: Dict[str, Any]):
         """Start vLLM server (mock or real)"""
         if MOCK_MODE:
@@ -373,7 +411,17 @@ class VLLMProfiler:
         
         self.stop_vllm_server()
         
-        # Real server startup code
+        # Check port availability
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('localhost', self.port))
+        sock.close()
+        if result == 0:
+            print(f"Port {self.port} is in use. Killing existing process...")
+            subprocess.run(f"lsof -ti:{self.port} | xargs kill -9", shell=True)
+            time.sleep(2)
+        
+        # Build command - NOTE: using --enable-log-requests instead of deprecated --disable-log-requests
         cmd = [
             "python", "-m", "vllm.entrypoints.openai.api_server",
             "--model", self.model_name,
@@ -382,8 +430,7 @@ class VLLMProfiler:
             "--max-num-seqs", str(config['max_num_seqs']),
             "--swap-space", str(config['swap_space']),
             "--max-num-batched-tokens", str(config['max_num_batched_tokens']),
-            "--disable-log-requests",
-            "--max-model-len", "512",
+            "--max-model-len", "512", # context length
             "--enforce-eager"
         ]
         
@@ -394,13 +441,23 @@ class VLLMProfiler:
             cmd.append("--enable-chunked-prefill")
         
         print(f"Starting vLLM server with config: {config}")
+        print(f"Command: {' '.join(cmd)}")
         
         log_file = os.path.join(self.output_dir, "logs", f"vllm_server_{time.time()}.log")
         with open(log_file, 'w') as f:
             self.server_process = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT)
         
+        print(f"Server log file: {log_file}")
+        
         # Wait for server to be ready
-        time.sleep(10)
+        if not self.check_server_health():
+            # If server failed to start, read the log file for debugging
+            with open(log_file, 'r') as f:
+                print("\nServer startup failed. Last 50 lines of log:")
+                lines = f.readlines()
+                for line in lines[-50:]:
+                    print(line.rstrip())
+            raise RuntimeError("vLLM server failed to start")
     
     def stop_vllm_server(self):
         """Stop vLLM server"""
