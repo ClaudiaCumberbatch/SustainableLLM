@@ -327,7 +327,7 @@ class VLLMProfiler:
         # Define parameter ranges for experimentation
         # Test
         # self.param_ranges = {
-        #     'power_cap': [150, 200],
+        #     'power_cap': [300, 400],
         #     'gpu_memory_utilization': [0.9],
         #     'max_num_seqs': [64, 128],
         #     'enable_prefix_caching': [True],
@@ -336,10 +336,23 @@ class VLLMProfiler:
         #     'max_num_batched_tokens': [2048],
         #     'mps_percentage': [100]
         # }
+
         # V100S, 4*4*2*2*2*3 = 384 configs
+        # self.param_ranges = {
+        #     'power_cap': [150, 200, 250],  # limit 250
+        #     'gpu_memory_utilization': [0.90, 0.95],  # 32GB 
+        #     'max_num_seqs': [64, 128], # batch size
+        #     'enable_prefix_caching': [True],
+        #     'enable_chunked_prefill': [False],  
+        #     'swap_space': [4, 8],
+        #     'max_num_batched_tokens': [2048, 4096], # 批处理的最大token数
+        #     'mps_percentage': [50, 75, 100]
+        # }
+
+        # A100, 3*3*2*2*2*3 = 216 configs
         self.param_ranges = {
-            'power_cap': [150, 200, 250],  # limit 250
-            'gpu_memory_utilization': [0.90, 0.95],  # 32GB 
+            'power_cap': [200, 300, 400],  # limit 400
+            'gpu_memory_utilization': [0.7, 0.8, 0.90],  # 32GB 
             'max_num_seqs': [64, 128], # batch size
             'enable_prefix_caching': [True],
             'enable_chunked_prefill': [False],  
