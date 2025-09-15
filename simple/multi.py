@@ -24,6 +24,7 @@ import random
 from typing import Dict, List, Any, Optional
 from multiprocessing import Process, Queue, Manager
 import multiprocessing
+import traceback
 
 # For A100 GPUs
 MOCK_MODE = False  # Set to True for testing without GPU
@@ -312,9 +313,13 @@ def run_single_gpu_experiment(gpu_id: int, configs: List[Dict], prompts: List[st
                 power_monitor.start()
 
                 # Run inference
-                result = run_inference_request(
-                    gpu_id, port, prompt, prompt_idx, model_name
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                result = loop.run_until_complete(
+                    run_inference_request(gpu_id, port, prompt, prompt_idx, model_name)
                 )
+                loop.close()
 
                 power_readings = power_monitor.stop()
                 energy_metrics = calculate_energy_metrics(power_readings)
@@ -366,6 +371,7 @@ def run_single_gpu_experiment(gpu_id: int, configs: List[Dict], prompts: List[st
             
         except Exception as e:
             print(f"[GPU {gpu_id}] Error with configuration {config_idx}: {e}")
+            traceback.print_exc()  # 打印完整的错误堆栈信息
             subprocess.run("pkill -f vllm.entrypoints.openai.api_server", shell=True)
             continue
         
@@ -426,7 +432,7 @@ def check_server_health(port: int, max_retries: int = 60, retry_delay: int = 2):
     
     return False
 
-def run_inference_request(gpu_id: int, port: int, prompt: str, 
+async def run_inference_request(gpu_id: int, port: int, prompt: str, 
                          prompt_idx: int, model_name: str) -> Dict:
     """Run single inference request"""
     if MOCK_MODE:
@@ -453,29 +459,66 @@ def run_inference_request(gpu_id: int, port: int, prompt: str,
         "prompt": prompt,
         "max_tokens": 100,
         "temperature": 0.7,
-        "stream": False  # Simplified for this example
+        "stream": True 
+    }
+
+    result = {
+        'ttft': 0,
+        'tbt': 0,
+        'total_latency': 0,
+        'throughput': 0,
+        'tokens_generated': 0,
+        'generated_text': "",
+        'inter_token_times': []
     }
     
     start_time = time.time()
-    response = requests.post(url, json=payload)
-    total_latency = time.time() - start_time
-    
-    result_data = response.json()
-    tokens_generated = len(result_data['choices'][0]['text'].split())
-    
-    return {
-        'ttft': total_latency * 0.1,  # Approximate
-        'tbt': total_latency / tokens_generated if tokens_generated > 0 else 0,
-        'total_latency': total_latency,
-        'tokens_generated': tokens_generated,
-        'throughput': tokens_generated / total_latency if total_latency > 0 else 0,
-        'energy_kwh': 0.001,  # Would need actual power monitoring
-        'avg_power_kw': 0.3,
-        'peak_power_kw': 0.4,
-        'gpu_utilization': 80,
-        'gpu_memory_used_gb': 25,
-        'generated_text': result_data['choices'][0]['text']
-    }
+    first_token_time = None
+    prev_token_time = start_time
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=payload) as response:
+                async for line in response.content:
+                    if line:
+                        line_str = line.decode('utf-8').strip()
+                        if line_str.startswith('data: '):
+                            current_time = time.time()
+                            data_str = line_str[6:]
+                                
+                            if data_str != '[DONE]':
+                                try:
+                                    data = json.loads(data_str)
+                                    if 'choices' in data and len(data['choices']) > 0:
+                                        choice = data['choices'][0]
+                                        if 'text' in choice:
+                                            result['generated_text'] += choice['text']
+                                            result['tokens_generated'] += 1
+                                                
+                                            if first_token_time is None:
+                                                first_token_time = current_time
+                                                result['ttft'] = first_token_time - start_time
+                                            else:
+                                                result['inter_token_times'].append(
+                                                    current_time - prev_token_time
+                                                )
+                                                
+                                            prev_token_time = current_time
+                                except json.JSONDecodeError:
+                                    pass
+                
+            result['total_latency'] = time.time() - start_time
+            result['throughput'] = (result['tokens_generated'] / result['total_latency']
+                                  if result['total_latency'] > 0 else 0)
+                
+            if result['inter_token_times']:
+                result['tbt'] = np.mean(result['inter_token_times'])
+                
+        except Exception as e:
+            print(f"Error during inference for prompt {prompt_id}: {e}")
+        
+    return result
+
 
 class MultiGPUProfiler:
     """Main class for multi-GPU parallel profiling"""
@@ -504,18 +547,19 @@ class MultiGPUProfiler:
         self.db_path = os.path.join(self.output_dir, "profiling_results.db")
         
 
-        # Parameter ranges optimized for A100
         # Test
-        self.param_ranges = {
-            'power_cap': [350, 400],  # A100 power range
-            'gpu_memory_utilization': [0.80, 0.90],
-            'max_num_seqs': [256],
-            'enable_prefix_caching': [True],
-            'enable_chunked_prefill': [False],
-            'swap_space': [4],
-            'max_num_batched_tokens': [4096],
-            'mps_percentage': [75, 100]
-        }        
+        # self.param_ranges = {
+        #     'power_cap': [250, 300],  # V100 power range
+        #     'gpu_memory_utilization': [0.80, 0.90],
+        #     'max_num_seqs': [256],
+        #     'enable_prefix_caching': [True],
+        #     'enable_chunked_prefill': [False],
+        #     'swap_space': [4],
+        #     'max_num_batched_tokens': [4096],
+        #     'mps_percentage': [75, 100]
+        # }  
+
+        # Parameter ranges optimized for A100 
         # self.param_ranges = {
         #     'power_cap': [300, 350, 400],  # A100 power range
         #     'gpu_memory_utilization': [0.85, 0.90, 0.95],
@@ -526,6 +570,18 @@ class MultiGPUProfiler:
         #     'max_num_batched_tokens': [4096, 8192],
         #     'mps_percentage': [50, 75, 100]
         # }
+
+        # Parameter ranges optimized for V100 
+        self.param_ranges = {
+            'power_cap': [200, 250, 300],  # V100 power range
+            'gpu_memory_utilization': [0.85, 0.90, 0.95],
+            'max_num_seqs': [64, 128, 256],
+            'enable_prefix_caching': [True, False],
+            'enable_chunked_prefill': [False],
+            'swap_space': [4, 8],
+            'max_num_batched_tokens': [4096, 8192],
+            'mps_percentage': [50, 75, 100]
+        }
         
         # Save configuration
         config_file = os.path.join(self.output_dir, "experiment_config.json")
