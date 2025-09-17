@@ -515,7 +515,7 @@ async def run_inference_request(gpu_id: int, port: int, prompt: str,
                 result['tbt'] = np.mean(result['inter_token_times'])
                 
         except Exception as e:
-            print(f"Error during inference for prompt {prompt_id}: {e}")
+            print(f"Error during inference for prompt {prompt_idx}: {e}")
         
     return result
 
@@ -677,11 +677,16 @@ class MultiGPUProfiler:
         print(f"\nTotal experiments to run: {total_experiments}")
         print("Progress:")
         
+        last_completed = completed
+        last_update_time = time.time()
+        timeout_sec = 300
         while completed < total_experiments:
             try:
                 result = result_queue.get(timeout=1)
                 completed += 1
-                
+                if completed != last_completed:
+                    last_update_time = time.time()
+                    last_completed = completed
                 if completed % 10 == 0 or completed == total_experiments:
                     progress = (completed / total_experiments) * 100
                     print(f"  [{progress:.1f}%] Completed {completed}/{total_experiments} experiments")
@@ -689,7 +694,13 @@ class MultiGPUProfiler:
                 # Check if processes are still alive
                 if not any(p.is_alive() for p in processes):
                     break
-        
+                # 超时检测
+                if time.time() - last_update_time > timeout_sec:
+                    print(f"No new completed results in {timeout_sec} seconds. Terminating all processes...")
+                    for p in processes:
+                        if p.is_alive():
+                            p.terminate()
+                    break
         # Wait for all processes to complete
         for p in processes:
             p.join()
