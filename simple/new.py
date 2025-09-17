@@ -4,29 +4,30 @@ Multi-GPU Parallel vLLM Profiling Script - Improved Version
 Distributes configurations across multiple GPUs for parallel experimentation
 """
 
-import os
-import sys
-import time
-import json
-import subprocess
-import itertools
-import pandas as pd
-from datetime import datetime
-import numpy as np
-import asyncio
 import aiohttp
-from dataclasses import dataclass, asdict
-import threading
-import queue
-import requests
-import sqlite3
-import random
-from typing import Dict, List, Any, Optional
-from multiprocessing import Process, Queue, Manager, Lock
+import asyncio
+import csv
+import itertools
+import json
 import multiprocessing
-import traceback
-import signal
+import numpy as np
+import os
+import pandas as pd
 import psutil
+import queue
+import random
+import requests
+import signal
+import sqlite3
+import subprocess
+import sys
+import threading
+import time
+import traceback
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from multiprocessing import Lock, Manager, Process, Queue
+from typing import Any, Dict, List, Optional
 
 # For A100 GPUs
 MOCK_MODE = False  # Set to True for testing without GPU
@@ -224,6 +225,10 @@ class DatasetLoader:
             self.load_math()
         elif "alpaca" in prompt_file:
             self.load_alpaca()
+        elif "MMLU" in prompt_file:
+            self.load_mmlu()
+        elif "NQ" in prompt_file:
+            self.load_nq()
     
     def load_math(self):
         """Load prompt data"""
@@ -273,6 +278,59 @@ class DatasetLoader:
             self.prompts = [f"Explain the concept of gravity in simple terms. (Prompt {i})" for i in range(10)]
             print(f"Generated {len(self.prompts)} mock prompts")
     
+    # csv version
+    # def load_mmlu(self):
+    #     """Load MMLU dataset"""
+    #     if os.path.exists(self.prompt_file):
+    #         with open(self.prompt_file, 'r', encoding='utf-8') as f:
+    #             reader = csv.DictReader(f)
+    #             for row in reader:
+    #                 self.prompts.append(row['prompt'])
+    #                 if self.limit and len(self.prompts) >= self.limit:
+    #                     break
+    #         print(f"Loaded {len(self.prompts)} prompts from {self.prompt_file}")
+    #     else:
+    #         print(f"Warning: Prompt file not found: {self.prompt_file}")
+    #         print("Generating mock prompts for testing...")
+    #         self.prompts = [f"What is the derivative of x^2? (Prompt {i})" for i in range(10)]
+    #         print(f"Generated {len(self.prompts)} mock prompts")
+
+    # json version
+    def load_mmlu(self):
+        """Load MMLU dataset"""
+        if os.path.exists(self.prompt_file):
+            with open(self.prompt_file, 'r') as f:
+                data = json.load(f)
+                for i, item in enumerate(data):
+                    if self.limit and i >= self.limit:
+                        break
+                    if 'prompt' in item:
+                        self.prompts.append(item['prompt'])
+            print(f"Loaded {len(self.prompts)} prompts from {self.prompt_file}")
+        else:
+            print(f"Warning: Prompt file not found: {self.prompt_file}")
+            print("Generating mock prompts for testing...")
+            self.prompts = [f"What is the capital of country {i}?" for i in range(10)]
+            print(f"Generated {len(self.prompts)} mock prompts")
+    
+    def load_nq(self):
+        """Load Natural Questions dataset"""
+        self.prompts = []
+        if os.path.exists(self.prompt_file):
+            with open(self.prompt_file, 'r') as f:
+                for i, line in enumerate(f):
+                    if self.limit and i >= self.limit:
+                        break
+
+                    self.prompts.append(line.strip())
+
+            print(f"Loaded {len(self.prompts)} prompts from {self.prompt_file}")
+        else:
+            print(f"Warning: Prompt file not found: {self.prompt_file}")
+            print("Generating mock prompts for testing...")
+            self.prompts = [f"What is the capital of country {i}?" for i in range(10)]
+            print(f"Generated {len(self.prompts)} mock prompts")
+
     def get_all_prompts(self) -> List[str]:
         return self.prompts
 
