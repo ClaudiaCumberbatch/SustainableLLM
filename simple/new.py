@@ -229,6 +229,8 @@ class DatasetLoader:
             self.load_mmlu()
         elif "NQ" in prompt_file:
             self.load_nq()
+        elif "scienceQA" in prompt_file:
+            self.load_scienceqa()
     
     def load_math(self):
         """Load prompt data"""
@@ -329,6 +331,24 @@ class DatasetLoader:
             print(f"Warning: Prompt file not found: {self.prompt_file}")
             print("Generating mock prompts for testing...")
             self.prompts = [f"What is the capital of country {i}?" for i in range(10)]
+            print(f"Generated {len(self.prompts)} mock prompts")
+
+    def load_scienceqa(self):
+        """Load ScienceQA dataset"""
+        self.prompts = []
+        if os.path.exists(self.prompt_file):
+            with open(self.prompt_file, 'r') as f:
+                data = json.load(f)
+                for i, (key, item) in enumerate(data.items()):
+                    if self.limit and len(self.prompts) >= self.limit:
+                        break
+                    if 'prompt' in item:
+                        self.prompts.append(item['prompt'])
+            print(f"Loaded {len(self.prompts)} prompts from {self.prompt_file}")
+        else:
+            print(f"Warning: Prompt file not found: {self.prompt_file}")
+            print("Generating mock prompts for testing...")
+            self.prompts = [f"What is the boiling point of water? (Prompt {i})" for i in range(10)]
             print(f"Generated {len(self.prompts)} mock prompts")
 
     def get_all_prompts(self) -> List[str]:
